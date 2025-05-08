@@ -1,7 +1,6 @@
 # load packages
 
-# Use this script if the DDP scripts didn't work out for you.
-# DDP スクリプトが機能しなかった場合は、このスクリプトを使用します。
+
 
 import random
 import yaml
@@ -351,9 +350,9 @@ def main(config_path):
             for bib in range(len(mel_input_length)):
                 mel_length = int(mel_input_length[bib].item())
                 mel = mels[bib, :, :mel_input_length[bib]]
-                s = model.predictor_encoder(mel.unsqueeze(0))
+                s = model.predictor_encoder(mel.unsqueeze(0).unsqueeze(1))
                 ss.append(s)
-                s = model.style_encoder(mel.unsqueeze(0))
+                s = model.style_encoder(mel.unsqueeze(0).unsqueeze(1))
                 gs.append(s)
 
             s_dur = torch.stack(ss).squeeze()  # global prosodic styles
@@ -435,8 +434,8 @@ def main(config_path):
             # if gt.size(-1) < 80:
             #     continue
             
-            s = model.style_encoder(gt)           
-            s_dur = model.predictor_encoder(gt)
+            s = model.style_encoder(gt.unsqueeze(0))           
+            s_dur = model.predictor_encoder(gt.unsqueeze(0))
                 
             with torch.no_grad():
                 F0_real, _, F0 = model.pitch_extractor(gt.unsqueeze(1))
@@ -667,9 +666,9 @@ def main(config_path):
                     for bib in range(len(mel_input_length)):
                         mel_length = int(mel_input_length[bib].item())
                         mel = mels[bib, :, :mel_input_length[bib]]
-                        s = model.predictor_encoder(mel.unsqueeze(0))
+                        s = model.predictor_encoder(mel.unsqueeze(0).unsqueeze(1))
                         ss.append(s)
-                        s = model.style_encoder(mel.unsqueeze(0))
+                        s = model.style_encoder(mel.unsqueeze(0).unsqueeze(1))
                         gs.append(s)
 
                     s = torch.stack(ss).squeeze()
@@ -711,7 +710,7 @@ def main(config_path):
                     en = torch.stack(en)
                     p_en = torch.stack(p_en)
                     gt = torch.stack(gt).detach()
-                    s = model.predictor_encoder(gt)
+                    s = model.predictor_encoder(gt.unsqueeze(0))
 
                     F0_fake, N_fake = model.predictor.F0Ntrain(p_en, s)
 
